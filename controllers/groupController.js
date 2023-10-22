@@ -3,7 +3,7 @@ const Group = require("../models/groupModel"); // Import the Group model
 // Controller function to create a new group
 const createGroup = async (req, res) => {
   const { name, description, admin, members, groupIcon } = req.body;
-
+console.log(req.body,"chali chali");
   try {
     // Create a new group instance using the Group model
     const newGroup = new Group({
@@ -16,12 +16,13 @@ const createGroup = async (req, res) => {
 
     // Save the group to the database
     await newGroup.save();
-
+console.log("group created");
     // Respond with a success message and the created group data
     return res
       .status(201)
       .json({ message: "Group created successfully", group: newGroup });
   } catch (error) {
+    console.log(error.message,"===========error while creating gorup=====");
     // Handle any errors, e.g., validation errors or database errors
     return res
       .status(500)
@@ -133,9 +134,27 @@ const removeMemberFromGroup = async (req, res) => {
   }
 };
 
+const getGroupsUserIsAddedTo = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get the user's ID from the request parameters
+
+   
+    // const groups = await Group.find({ members: userId });
+    const groups = await Group.find({
+      $or: [{ members: userId }, { admin: userId }],
+    });
+    console.log("=========",groups,' while getting gorups',userId);
+
+    return res.status(200).json({ groups });
+  } catch (error) {
+    console.log(error.message,'errro while getting gorups');
+    return res.status(500).json({ error: 'Failed to retrieve groups', message: error.message });
+  }
+};
 module.exports = {
   createGroup,
   deleteGroup,
   addMemberToGroup,
   removeMemberFromGroup,
+  getGroupsUserIsAddedTo
 };
