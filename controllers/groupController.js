@@ -3,12 +3,12 @@ const Group = require("../models/groupModel"); // Import the Group model
 // Controller function to create a new group
 const createGroup = async (req, res) => {
   const { name, description, admin, members, groupIcon } = req.body;
-console.log(req.body,"chali chali");
+  console.log(req.body, "chali chali");
   try {
     // Create a new group instance using the Group model
     const newGroup = new Group({
       name,
-      description, 
+      description,
       admin,
       members,
       groupIcon,
@@ -16,13 +16,13 @@ console.log(req.body,"chali chali");
 
     // Save the group to the database
     await newGroup.save();
-console.log("group created");
+    console.log("group created");
     // Respond with a success message and the created group data
     return res
       .status(201)
       .json({ message: "Group created successfully", group: newGroup });
   } catch (error) {
-    console.log(error.message,"===========error while creating gorup=====");
+    console.log(error.message, "===========error while creating gorup=====");
     // Handle any errors, e.g., validation errors or database errors
     return res
       .status(500)
@@ -32,7 +32,7 @@ console.log("group created");
 
 const deleteGroup = async (req, res) => {
   const groupId = req.params.groupId; // Get the group ID from the request parameters
-console.log(groupId,"groupId");
+  console.log(groupId, "groupId");
   try {
     // Find the group by its ID and delete it
     const deletedGroup = await Group.findByIdAndDelete(groupId);
@@ -58,7 +58,7 @@ console.log(groupId,"groupId");
 
 const addMemberToGroup = async (req, res) => {
   const groupId = req.params.groupId; // Get the group ID from the request parameters
-  const { memberId } = req.body; // Get the member's ID from the request body
+  const { memberIds } = req.body; // Get the member's IDs from the request body
 
   try {
     // Find the group by its ID
@@ -69,14 +69,11 @@ const addMemberToGroup = async (req, res) => {
     }
 
     // Check if the member is already in the group
-    if (group.members.includes(memberId)) {
-      return res
-        .status(400)
-        .json({ message: "Member is already in the group" });
+    for (const memberId of memberIds) {
+      if (!group.members.includes(memberId)) {
+        group.members.push(memberId);
+      }
     }
-
-    // Add the member to the group's members array
-    group.members.push(memberId);
 
     // Save the updated group to the database
     await group.save();
@@ -84,16 +81,16 @@ const addMemberToGroup = async (req, res) => {
     // Respond with a success message and the updated group data
     return res
       .status(200)
-      .json({ message: "Member added to the group successfully", group });
+      .json({ message: "Members added to the group successfully", group });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        error: "Adding member to the group failed",
-        message: error.message,
-      });
+    console.log(error.message, "err");
+    return res.status(500).json({
+      error: "Adding members to the group failed",
+      message: error.message,
+    });
   }
 };
+
 
 const removeMemberFromGroup = async (req, res) => {
   const groupId = req.params.groupId; // Get the group ID from the request parameters
@@ -125,12 +122,10 @@ const removeMemberFromGroup = async (req, res) => {
       .status(200)
       .json({ message: "Member removed from the group successfully", group });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        error: "Removing member from the group failed",
-        message: error.message,
-      });
+    return res.status(500).json({
+      error: "Removing member from the group failed",
+      message: error.message,
+    });
   }
 };
 
@@ -138,17 +133,18 @@ const getGroupsUserIsAddedTo = async (req, res) => {
   try {
     const userId = req.params.userId; // Get the user's ID from the request parameters
 
-   
     // const groups = await Group.find({ members: userId });
     const groups = await Group.find({
       $or: [{ members: userId }, { admin: userId }],
     });
-    console.log("=========",groups,' while getting gorups',userId);
+    console.log("=========", groups, " while getting gorups", userId);
 
     return res.status(200).json({ groups });
   } catch (error) {
-    console.log(error.message,'errro while getting gorups');
-    return res.status(500).json({ error: 'Failed to retrieve groups', message: error.message });
+    console.log(error.message, "errro while getting gorups");
+    return res
+      .status(500)
+      .json({ error: "Failed to retrieve groups", message: error.message });
   }
 };
 module.exports = {
@@ -156,5 +152,5 @@ module.exports = {
   deleteGroup,
   addMemberToGroup,
   removeMemberFromGroup,
-  getGroupsUserIsAddedTo
+  getGroupsUserIsAddedTo,
 };
