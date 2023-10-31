@@ -3,11 +3,12 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const path = require("path");
 require('dotenv').config();
+const mongoose = require("mongoose")
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: "backend/config/config.env" });
 }
-
+mongoose.set('strictQuery', true)
 // Using Middlewares
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -19,6 +20,7 @@ const user = require("./routes/user");
 const messages = require("./routes/messages");
 const groupMessage = require("./routes/groupMessage");
 const group = require("./routes/group");
+
 
 
 // Using Routes
