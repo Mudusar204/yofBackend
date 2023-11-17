@@ -33,9 +33,7 @@ router.route("/update/profile").put(isAuthenticated, updateProfile);
 router.route("/delete/me").delete(isAuthenticated, deleteMyProfile);
 router.route("/me").get(isAuthenticated, myProfile);
 
-router.route("/my/posts").get(isAuthenticated, getMyPosts);
 
-router.route("/userposts/:id").get(isAuthenticated, getUserPosts);
 
 router.route("/user/:id").get(isAuthenticated, getUserProfile);
 
